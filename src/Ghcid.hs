@@ -280,7 +280,7 @@ data Continue = Continue
 
 data ReloadMode = Reload | Restart deriving (Show, Ord, Eq)
 
--- If we pure successfully, we restart the whole process
+-- If we return successfully, we restart the whole process
 -- Use Continue not () so that inadvertant exits don't restart
 runGhcid :: Session -> Waiter -> IO TermSize -> ([String] -> IO ()) -> Options -> IO Continue
 runGhcid session waiter termSize termOutput opts@Options{..} = do
@@ -326,7 +326,7 @@ runGhcid session waiter termSize termOutput opts@Options{..} = do
         map (":set " ++) (ghciFlagsUseful ++ ghciFlagsUsefulVersioned) ++ setup
 
     when (null loaded && not ignoreLoaded) $ do
-        putStrLn $ "\nNo files loaded, GHCi is not working properly.\nCommand: " ++ command
+        putStrLn $ "\nNo files loaded, meaning ghcid will never refresh, so aborting.\nCommand: " ++ command
         exitFailure
 
     restart <- pure $ nubOrd $ restart ++ [x | LoadConfig x <- messages]

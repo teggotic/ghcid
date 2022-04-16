@@ -9,8 +9,12 @@ if exists("g:loaded_ghcid") || &cp || !has('nvim')
 endif
 let g:loaded_ghcid = 1
 
-if !exists("g:ghcid_lines")
-  let g:ghcid_lines = 10
+if !exists("g:ghcid_size")
+  if !exists("g:ghcid_length")
+    let g:ghcid_size = 10
+  else
+    let g:ghcid_size = g:ghcid_length
+  endif
 endif
 
 if !exists("g:ghcid_keep_open")
@@ -27,6 +31,10 @@ endif
 
 if !exists("g:ghcid_verbosity")
   let g:ghcid_verbosity = 2
+endif
+
+if !exists("g:ghcid_placement")
+  let g:ghcid_placement = 'below'
 endif
 
 let s:ghcid_command_args = {}
@@ -94,13 +102,20 @@ function! s:ghcid_closewin_force()
   quit
 endfunction
 
+function s:placement_cmd()
+  if g:ghcid_placement == 'above' | return 'above' | endif
+  if g:ghcid_placement == 'below' | return 'below' | endif
+  if g:ghcid_placement == 'left'  | return 'vertical topleft' | endif
+  if g:ghcid_placement == 'right' | return 'vertical rightb' | endif
+endfunction
+
 function! s:ghcid_openwin()
   let buf = s:ghcid_bufnr()
 
   if buf > 0
-    exe 'keepalt' 'below' g:ghcid_lines . 'split' '#' . buf
+    exe 'keepalt' 'above' g:ghcid_size . 'split' '#' . buf
   else
-    exe 'keepalt' 'below' g:ghcid_lines . 'new'
+    exe 'keepalt' s:placement_cmd() g:ghcid_size . 'new'
     file ghcid
   endif
 
@@ -335,7 +350,7 @@ function! s:ghcid(...) abort
     silent normal! G
     set norelativenumber
     set nonumber
-    set filetype=haskell
+    set syntax=haskell
     let s:ghcid_job_id = b:terminal_job_id
   endif
 

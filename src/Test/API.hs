@@ -8,6 +8,7 @@ import System.IO.Extra
 import System.Time.Extra
 import Language.Haskell.Ghcid
 import Language.Haskell.Ghcid.Util
+import Test.Common
 
 
 apiTests :: TestTree
@@ -20,7 +21,7 @@ apiTests = testGroup "API test"
         exec ghci "nub \"test\"" >>= (@?= ["\"tes\""])
         stopGhci ghci
 
-    ,testCase "Load file" $ withTempDir $ \dir -> do
+    ,disable19650 $ testCase "Load file" $ withTempDir $ \dir -> do
         writeFile (dir </> "File.hs") "module A where\na = 123"
         (ghci, load) <- startGhci "ghci -ignore-dot-ghci File.hs" (Just dir) $ const putStrLn
         load @?= [Loading "A" "File.hs"]
